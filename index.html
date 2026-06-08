@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kalkulator Zakat Mal</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Raleway:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f7f3ee;
+  --bg2:#efe9df;
+  --gold:#b8972a;
+  --gold-light:#d4af37;
+  --gold-pale:#f5ecd0;
+  --green:#1a5c3a;
+  --green-light:#2d7a52;
+  --green-pale:#e8f3ed;
+  --text:#1c1a17;
+  --muted:#7a6e5f;
+  --border:#d9cdb8;
+  --white:#fff;
+  --shadow:rgba(0,0,0,0.08);
+  --red:#c0392b;
+}
+
+body{
+  font-family:'Raleway',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:0 0 60px;
+}
+
+/* ══ ORNAMENT BG ══ */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(184,151,42,0.06) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(26,92,58,0.06) 0%, transparent 40%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.wrap{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:0 16px;}
+
+/* ══ HEADER ══ */
+header{
+  text-align:center;
+  padding:48px 20px 36px;
+  position:relative;
+}
+.arab{
+  font-family:'Amiri',serif;
+  font-size:2.2rem;
+  color:var(--gold);
+  display:block;
+  margin-bottom:6px;
+  letter-spacing:2px;
+}
+header h1{
+  font-size:clamp(1.5rem,4vw,2.2rem);
+  font-weight:800;
+  color:var(--green);
+  letter-spacing:-0.5px;
+}
+header p{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:0.88rem;
+  font-weight:500;
+}
+.divider{
+  display:flex;align-items:center;gap:12px;
+  margin:20px auto 0;max-width:320px;
+}
+.divider::before,.divider::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(to right,transparent,var(--gold));
+}
+.divider::after{background:linear-gradient(to left,transparent,var(--gold));}
+.divider span{color:var(--gold);font-size:1.1rem;}
+
+/* ══ NISAB BAR ══ */
+.nisab-bar{
+  background:linear-gradient(135deg,var(--green) 0%,var(--green-light) 100%);
+  border-radius:16px;
+  padding:18px 24px;
+  margin-bottom:28px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  align-items:center;
+  box-shadow:0 4px 20px rgba(26,92,58,0.2);
+}
+.nisab-bar label{
+  font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.8);
+  display:block;margin-bottom:4px;
+}
+.nisab-bar input{
+  background:rgba(255,255,255,0.12);
+  border:1px solid rgba(255,255,255,0.25);
+  color:#fff;padding:9px 14px;border-radius:10px;
+  font-family:'Raleway',sans-serif;font-size:0.9rem;
+  width:200px;
+}
+.nisab-bar input:focus{outline:2px solid var(--gold-light);border-color:transparent;}
+.nisab-bar input::placeholder{color:rgba(255,255,255,0.4);}
+.nisab-info{
+  font-size:0.78rem;color:rgba(255,255,255,0.7);
+  font-style:italic;margin-top:2px;
+}
+.nisab-val{
+  margin-left:auto;text-align:right;
+}
+.nisab-val .lbl{font-size:0.75rem;color:rgba(255,255,255,0.7);}
+.nisab-val .num{font-size:1.1rem;font-weight:700;color:var(--gold-light);}
+
+/* ══ NAV TABS ══ */
+.tabs{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-bottom:24px;
+}
+.tab{
+  padding:9px 16px;border-radius:30px;
+  font-family:'Raleway',sans-serif;font-size:0.82rem;font-weight:600;
+  border:1.5px solid var(--border);
+  background:var(--white);color:var(--muted);
+  cursor:pointer;transition:all 0.2s;
+}
+.tab:hover{border-color:var(--gold);color:var(--gold);}
+.tab.active{
+  background:var(--green);color:#fff;
+  border-color:var(--green);
+  box-shadow:0 3px 12px rgba(26,92,58,0.25);
+}
+
+/* ══ PANEL ══ */
+.panel{display:none;}
+.panel.active{display:block;animation:fadeUp 0.35s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:28px;
+  margin-bottom:20px;
+  box-shadow:0 2px 16px var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(to right,var(--gold),var(--green));
+}
+.card h2{
+  font-size:1.05rem;font-weight:700;color:var(--green);
+  margin-bottom:4px;
+}
+.card .subtitle{
+  font-size:0.8rem;color:var(--muted);margin-bottom:22px;
+  font-style:italic;
+}
+
+/* FIELD */
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:500px){.fields{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field.full{grid-column:1/-1;}
+.field label{font-size:0.78rem;font-weight:600;color:var(--muted);}
+.field input,.field select{
+  background:var(--bg);border:1.5px solid var(--border);
+  color:var(--text);padding:10px 14px;border-radius:10px;
+  font-family:'Raleway',sans-serif;font-size:0.92rem;
+  transition:border-color 0.2s;
+}
+.field input:focus,.field select:focus{
+  outline:none;border-color:var(--gold);background:#fff;
+}
+.field .hint{font-size:0.72rem;color:var(--muted);margin-top:2px;}
+
+/* RESULT */
+.result{
+  margin-top:22px;
+  background:var(--gold-pale);
+  border:1.5px solid var(--gold);
+  border-radius:14px;
+  padding:20px 24px;
+  display:none;
+}
+.result.show{display:block;animation:fadeUp 0.3s ease;}
+.result .res-title{font-size:0.78rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+.res-item .lbl{font-size:0.72rem;color:var(--muted);margin-bottom:3px;}
+.res-item .val{font-size:1rem;font-weight:700;color:var(--text);}
+.res-item .val.zakat{color:var(--green);font-size:1.15rem;}
+.status-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:14px;padding:7px 16px;border-radius:30px;
+  font-size:0.8rem;font-weight:700;
+}
+.status-badge.wajib{background:var(--green-pale);color:var(--green);}
+.status-badge.belum{background:#fef2f2;color:var(--red);}
+.status-badge::before{
+  content:'';width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0;
+}
+
+/* CALC BTN */
+.btn-hitung{
+  margin-top:18px;
+  background:linear-gradient(135deg,var(--green) 0%,var(--green-light) 100%);
+  color:#fff;border:none;padding:12px 28px;border-radius:30px;
+  font-family:'Raleway',sans-serif;font-size:0.9rem;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+  box-shadow:0 4px 14px rgba(26,92,58,0.3);
+}
+.btn-hitung:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(26,92,58,0.35);}
+.btn-hitung:active{transform:translateY(0);}
+
+/* INFO BOX */
+.info-box{
+  background:var(--green-pale);border-left:3px solid var(--green);
+  border-radius:0 10px 10px 0;padding:12px 16px;
+  font-size:0.8rem;color:var(--green);line-height:1.7;margin-top:16px;
+}
+.info-box strong{display:block;margin-bottom:4px;}
+
+/* REKAP */
+.rekap-section{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:18px;padding:28px;margin-bottom:20px;
+  box-shadow:0 2px 16px var(--shadow);
+}
+.rekap-section h2{
+  font-size:1.1rem;font-weight:800;color:var(--green);
+  margin-bottom:20px;display:flex;align-items:center;gap:10px;
+}
+.rekap-section h2::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+#rekap-table{width:100%;border-collapse:collapse;}
+#rekap-table th{
+  background:var(--green);color:#fff;
+  padding:10px 14px;font-size:0.78rem;text-align:left;
+  font-weight:600;
+}
+#rekap-table th:first-child{border-radius:8px 0 0 8px;}
+#rekap-table th:last-child{border-radius:0 8px 8px 0;}
+#rekap-table td{
+  padding:10px 14px;font-size:0.85rem;
+  border-bottom:1px solid var(--bg2);
+}
+#rekap-table tr:last-child td{border-bottom:none;}
+#rekap-table .total-row td{
+  font-weight:800;color:var(--green);
+  background:var(--gold-pale);
+  border-top:2px solid var(--gold);
+}
+.badge-wajib{display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;}
+.badge-wajib.y{background:var(--green-pale);color:var(--green);}
+.badge-wajib.n{background:#fef2f2;color:var(--red);}
+
+/* PRINT */
+@media print{
+  body{background:#fff;}
+  body::before{display:none;}
+  .tabs,.btn-hitung,.nisab-bar input,.no-print{display:none!important;}
+  .card,.rekap-section{box-shadow:none;border:1px solid #ddd;}
+  .result{background:#f9f9f9;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <span class="arab">حاسبة زكاة المال</span>
+  <h1>Kalkulator Zakat Mal</h1>
+  <p>Hitung zakat harta sesuai ketentuan syariat Islam</p>
+  <div class="divider"><span>✦</span></div>
+</header>
+
+<!-- NISAB -->
+<div class="nisab-bar">
+  <div>
+    <label>Harga Emas per Gram (Rp)</label>
+    <input type="number" id="harga-emas" value="1050000" min="0" oninput="updateNisab()"/>
+    <div class="nisab-info">Nisab = 85 gram emas | Haul = 1 tahun</div>
+  </div>
+  <div class="nisab-val">
+    <div class="lbl">Nisab saat ini</div>
+    <div class="num" id="nisab-display">Rp 89.250.000</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showPanel('emas')">💍 Emas & Perak</button>
+  <button class="tab" onclick="showPanel('tabungan')">🏦 Tabungan & Uang</button>
+  <button class="tab" onclick="showPanel('perdagangan')">🛒 Perdagangan</button>
+  <button class="tab" onclick="showPanel('pertanian')">🌾 Pertanian</button>
+  <button class="tab" onclick="showPanel('ternak')">🐄 Peternakan</button>
+  <button class="tab" onclick="showPanel('tambang')">⛏ Pertambangan</button>
+  <button class="tab" onclick="showPanel('investasi')">📈 Investasi & Saham</button>
+  <button class="tab" onclick="showPanel('profesi')">💼 Profesi / Penghasilan</button>
+  <button class="tab" onclick="showPanel('rikaz')">🏺 Rikaz (Harta Temuan)</button>
+  <button class="tab" onclick="showPanel('rekap')">📊 Rekap Total</button>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL 1: EMAS & PERAK -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel active" id="panel-emas">
+  <div class="card">
+    <h2>Zakat Emas</h2>
+    <p class="subtitle">Nisab: 85 gram emas | Kadar: 2,5% | Haul: 1 tahun</p>
+    <div class="fields">
+      <div class="field">
+        <label>Berat Emas yang dimiliki (gram)</label>
+        <input type="number" id="e-berat" min="0" value="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>Harga Emas per Gram (Rp)</label>
+        <input type="number" id="e-harga" min="0" value="1050000" placeholder="0"/>
+      </div>
+    </div>
+    <div class="info-box">
+      <strong>📌 Ketentuan:</strong>
+      Emas yang dizakati adalah emas yang disimpan/ditabung (bukan emas yang dipakai sehari-hari menurut pendapat sebagian ulama). Nisab 85 gram, haul 1 tahun, kadar zakat 2,5%.
+    </div>
+    <button class="btn-hitung" onclick="hitungEmas()">Hitung Zakat Emas</button>
+    <div class="result" id="res-emas">
+      <div class="res-title">Hasil Perhitungan Zakat Emas</div>
+      <div class="result-grid">
+        <div class="res-item"><div class="lbl">Nilai Emas</div><div class="val" id="e-nilai">—</div></div>
+        <div class="res-item"><div class="lbl">Nisab (85 gr)</div><div class="val" id="e-nisab">—</div></div>
+        <div class="res-item"><div class="lbl">Zakat (2,5%)</div><div class="val zakat" id="e-zakat">—</div></div>
+      </div>
+      <div id="e-status"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Zakat Perak</h2>
+    <p class="subtitle">Nisab: 595 gram perak | Kadar: 2,5% | Haul: 1 tahun</p>
+    <div class="fields">
+      <div class="field">
+        <label>Berat Perak yang dimiliki (gram)</label>
+        <input type="number" id="p-berat" min="0" value="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>Harga Perak per Gram (Rp)</label>
+        <input type="number" id="p-harga" min="0" value="15000" placeholder="0"/>
+      </div>
+    </div>
+    <button class="btn-hitung" onclick="hitungPerak()">Hitung Zakat Perak</button>
+    <div class="result" id="res-perak">
+      <div class="res-title">Hasil Perhitungan Zakat Perak</div>
+      <div class="result-grid">
+        <div class="res-item"><div class="lbl">Nilai Perak</div><div class="val" id="p-nilai">—</div></div>
+        <div class="res-item"><div class="lbl">Nisab (595 gr)</div><div class="val" id="p-nisab">—</div></div>
+        <div class="res-item"><div class="lbl">Zakat (2,5%)</div><div class="val zakat" id="p-zakat">—</div></div>
+      </div>
+      <div id="p-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL 2: TABUNGAN -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-tabungan">
+  <div class="card">
+    <h2>Zakat Tabungan & Uang Tunai</h2>
+    <p class="subtitle">Nisab: setara 85 gram emas | Kadar: 2,5% | Haul: 1 tahun</p>
+    <div class="fields">
+      <div class="field">
+        <label>Saldo Tabungan / Deposito (Rp)</label>
+        <input type="number" id="t-tabungan" min="0" value="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>Uang Tunai / Dompet (Rp)</label>
+        <input type="number" id="t-tunai" min="0" value="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>Piutang yang dapat ditagih (Rp)</label>
+        <input type="number" id="t-piutang" min="0" value="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>Utang jatuh tempo (Rp) — pengurang</label>
+        <input type="number" id="t-utang" min="0" value="0" placeholder="0"/>
+      </div>
+    </div>
+    <div class="info-box">
+      <strong>📌 Ketentuan:</strong>
+      Semua harta likuid dijumlahkan lalu dikurangi utang yang jatuh tempo. Jika hasilnya ≥ nisab dan sudah dimiliki 1 tahun (haul), wajib dizakati 2,5%.
+    </div>
+    <button class="btn-hitung" onclick="hitungTabungan()">Hitung Zakat Tabungan</button>
+    <div class="result" id="res-tabungan">
+      <div class="res-title">Hasil Perhitungan Zakat Tabungan</div>
+      <div class="result-grid">
+        <div class="res-item"><div class="lbl">Total Harta Likuid</div><div class="val" id="t-total">—</div></div>
+        <div class="res-item"><div class="lbl">Dikurangi Utang</div><div class="val" id="t-utang-val">—</div></div>
+        <div class="res-item"><div class="lbl">Harta Bersih</div><div class="val" id="t-bersih">—</div></div>
+        <div class="res-item"><div class="lbl">Nisab</div><div class="val" id="t-nisab">—</div></div>
+        <div class="res-item"><div class="lbl">Zakat (2,5%)</div><div class="val zakat" id="t-zakat">—</div></div>
+      </div>
+      <div id="t-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL 3: PERDAGANGAN -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-perdagangan">
+  <div class="card">
+    <h2>Zakat Perdagangan / Perniagaan</h2>
+    <p class="subtitle">Nisab: setara 85 gram emas | Kadar: 2,5% | Haul: 1 tahun</p>
+    <div class="fields">
+      <div class="field">
+        <label>Nilai Stok Barang Dagangan (Rp)</label>
+        <input type="number" id="d-stok" min="0" value="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>Kas / Uang Tunai Usaha (Rp)</label>
+        <input type="number" id="d-kas" min="0" value="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>Piutang Dagang (dapat ditagih) (Rp)</label>
+        <input type="number" id="d-piutang" min="0" value="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>Utang Dagang / Kewajiban (Rp)</label>
+        <input type="number" id="d-utang" min="0" value="0" placeholder="0"/>
+      </div>
+    </div>
+    <div class="info-box">
+      <strong>📌 Rumus:</strong>
+      (Stok + Kas + Piutang − Utang) × 2,5%. Aset tetap seperti bangunan dan kendaraan usaha tidak dihitung.
+    </div>
+    <button class="btn-hitung" onclick="hitungDagang()">Hitung Zakat Perdagangan</button>
+    <div class="result" id="res-dagang">
+      <div class="res-title">Hasil Perhitungan Zakat Perdagangan</div>
+      <div class="result-grid">
+        <div class="res-item"><div class="lbl">Total Aset Dagang</div><div class="val" id="d-total">—</div></div>
+        <div class="res-item"><div class="lbl">Dikurangi Utang</div><div class="val" id="d-utang-val">—</div></div>
+        <div class="res-item"><div class="lbl">Harta Bersih</div><div class="val" id="d-bersih">—</div></div>
+        <div class="res-item"><div class="lbl">Zakat (2,5%)</div><div class="val zakat" id="d-zakat">—</div></div>
+      </div>
+      <div id="d-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL 4: PERTANIAN -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-pertanian">
+  <div class="card">
+    <h2>Zakat Pertanian / Hasil Bumi</h2>
+    <p class="subtitle">Nisab: 653 kg gabah / 520 kg beras | Tanpa haul (setiap panen)</p>
+    <div class="fields">
+      <div class="field">
+        <label>Hasil Panen (kg)</label>
+        <input type="number" id="pr-panen" min="0" value="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>Jenis Hasil</label>
+        <select id="pr-jenis">
+          <option value="gabah">Padi/Gabah (nisab 653 kg)</option>
+          <option value="beras">Beras (nisab 520 kg)</option>
+          <option value="lain">Lainnya (setara gabah)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Jenis Pengairan</label>
+        <select id="pr-irigasi">
+          <option value="hujan">Tadah hujan / tanpa biaya (10%)</option>
+          <option value="irigasi">Irigasi / biaya pengairan (5%)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Harga jual per kg (Rp)</label>
+        <input type="number" id="pr-harga" min="0" value="5000" placeholder="0"/>
+      </div>
+    </div>
+    <div class="info-box">
+      <strong>📌 Ketentuan:</strong>
+      Zakat pertanian tidak ada haul — wajib saat panen jika mencapai nisab. Kadar 10% untuk yang diairi hujan, 5% untuk yang menggunakan irigasi/pompa.
+    </div>
+    <button class="btn-hitung" onclick="hitungPertanian()">Hitung Zakat Pertanian</button>
+    <div class="result" id="res-pertanian">
+      <div class="res-title">Hasil Perhitungan Zakat Pertanian</div>
+      <div class="result-grid">
+        <div class="res-item"><div class="lbl">Hasil Panen</div><div class="val" id="pr-total-kg">—</div></div>
+        <div class="res-item"><div class="lbl">Nilai Panen</div><div class="val" id="pr-nilai">—</div></div>
+        <div class="res-item"><div class="lbl">Kadar Zakat</div><div class="val" id="pr-kadar">—</div></div>
+        <div class="res-item"><div class="lbl">Zakat</div><div class="val zakat" id="pr-zakat">—</div></div>
+      </div>
+      <div id="pr-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL 5: TERNAK -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-ternak">
+  <div class="card">
+    <h2>Zakat Peternakan</h2>
+    <p class="subtitle">Haul: 1 tahun | Hewan digembalakan di ladang umum (Saimah)</p>
+    <div class="fields">
+      <div class="field full">
+        <label>Jenis Ternak</label>
+        <select id="tr-jenis" onchange="updateTernakInfo()">
+          <option value="sapi">Sapi / Kerbau</option>
+          <option value="kambing">Kambing / Domba</option>
+          <option value="unta">Unta</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Jumlah Ternak (ekor)</label>
+        <input type="number" id="tr-jumlah" min="0" value="0" placeholder="0" oninput="hitungTernak()"/>
+      </div>
+    </div>
+    <div class="info-box" id="tr-info">
+      <strong>📌 Nisab Sapi/Kerbau:</strong><br>
+      30–39 ekor → 1 ekor tabi' (usia 1 th)<br>
+      40–59 ekor → 1 ekor musinnah (usia 2 th)<br>
+      60 ekor → 2 ekor tabi'
+    </div>
+    <div class="result show" id="res-ternak">
+      <div class="res-t
